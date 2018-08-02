@@ -102,7 +102,7 @@
             ],
             "properties": {
                 "scope": "[subscription().id]",
-                "policyDefinitionId": "[concat('providers/Microsoft.Authorization/policyDefinitions', variables('omspolicyGuid'))]",
+                "policyDefinitionId": "[concat('providers/Microsoft.Authorization/policyDefinitions/', variables('omspolicyGuid'))]",
                 "parameters": {
                     "logAnalytics": {
                         "value": "[concat(subscription().subscriptionId, '/resourceGroups/', parameters('mgmtRgName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('omsWorkspaceName'))]"
