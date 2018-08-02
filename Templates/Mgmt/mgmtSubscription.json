@@ -80,16 +80,16 @@
                 "parameters": {
                     "omsWorkspaceName": {
                         "value": "[variables('omsWorkspaceName')]"
+                    },
+                    "omsWorkspaceRegion": {
+                        "value": "[parameters('mgmtRgLocation')]"
+                    },
+                    "omsAutomationAccountName": {
+                        "value": "[variables('omsAutomationAccountName')]"
+                    },
+                    "omsAutomationRegion": {
+                        "value": "[parameters('mgmtRgLocation')]"
                     }
-                },
-                "omsWorkspaceRegion": {
-                    "value": "[parameters('mgmtRgLocation')]"
-                },
-                "omsAutomationAccountName": {
-                    "value": "[variables('omsAutomationAccountName')]"
-                },
-                "omsAutomationRegion": {
-                    "value": "[parameters('mgmtRgLocation')]"
                 }
             }
         },
