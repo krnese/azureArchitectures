@@ -42,6 +42,9 @@
             "apiVersion": "2018-05-01",
             "name": "ascConfig",
             "location": "[parameters('mgmtRgLocation')]",
+            "dependsOn": [
+                "workspaceDeployment"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -66,7 +69,7 @@
                     }
                 }
             }
-        }
+        },
         {
             "type": "Microsoft.Authorization/policyDefinitions",
             "name": "locationDef01",
