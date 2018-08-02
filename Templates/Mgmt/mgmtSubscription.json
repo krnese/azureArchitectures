@@ -19,8 +19,8 @@
         }
     },
     "variables": {
-        "omsWorkspaceName": "mgmtws",
-        "omsAutomationAccountName": "mgmtaa",
+        "omsWorkspaceName": "[concat(uniqueString(deployment().name), 'ws20')]",
+        "omsAutomationAccountName": "[concat(uniqueString(deployment().name), 'aa20')]",
         "omsPolicyGuid": "0868462e-646c-4fe3-9ced-a733534b6a2c",
         "omsTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/omsWorkspace.json')]"
     },
@@ -105,7 +105,7 @@
                 "policyDefinitionId": "[concat('providers/Microsoft.Authorization/policyDefinitions', variables('omspolicyGuid'))]",
                 "parameters": {
                     "logAnalytics": {
-                        "value": "[reference('workspaceDeployment').outputs.omsWorkspaceResourceId.value]"
+                        "value": "[concat(subscription().subscriptionId, '/resourceGroups/', parameters('mgmtRgName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('omsWorkspaceName'))]"
                     }
                 }
             }
