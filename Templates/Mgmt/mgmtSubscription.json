@@ -25,8 +25,8 @@
         "omsWorkspaceName": "[concat(uniqueString(deployment().name), 'ws20')]",
         "omsAutomationAccountName": "[concat(uniqueString(deployment().name), 'aa20')]",
         "omsPolicyGuid": "0868462e-646c-4fe3-9ced-a733534b6a2c",
-        "omsPolicyAssignmentName": "omsDefault",
-        "locationPolicyAssignmentName": "omsDefaultWorkspace",
+        "omsPolicyAssignmentName": "omsDefaultWorkspace",
+        "locationPolicyAssignmentName": "deniedLocationAssignment",
         "locationPolicyDefinitionName": "deniedLocation",
         "omsTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/omsWorkspace.json')]",
         "vNet": {
