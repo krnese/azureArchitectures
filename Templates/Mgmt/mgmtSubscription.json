@@ -20,6 +20,13 @@
         },
         "nwRgName": {
             "type": "string"
+        },
+        "enableResourceLocks": {
+            "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
         }
     },
     "variables": {
@@ -181,6 +188,30 @@
                         }
                     ]
                 }
+            }
+        },
+        {
+            "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
+            "type": "Microsoft.Resources/resourceGroups/providers/locks",
+            "apiVersion": "2015-01-01",
+            "name": "[concat(parameters('mgmtRgName'), '/', 'lock')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('mgmtRgName'))]"
+            ],
+            "properties": {
+                "level": "CannotDelete"
+            }
+        },
+        {
+            "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
+            "type": "Microsoft.Resources/resourceGroups/providers/locks",
+            "apiVersion": "2015-01-01",
+            "name": "[concat(parameters('nwRgName'), '/', 'lock')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('nwRgName'))]"
+            ],
+            "properties": {
+                "level": "CannotDelete"
             }
         }
     ],
