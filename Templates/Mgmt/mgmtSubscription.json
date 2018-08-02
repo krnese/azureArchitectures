@@ -1,0 +1,124 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "principalId": {
+            "type": "string"
+        },
+        "roleDefinitionId": {
+            "type": "string"
+        },
+        "deniedLocation": {
+            "type": "string"
+        },
+        "mgmtRgLocation": {
+            "type": "string"
+        },
+        "mgmtRgName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "omsWorkspaceName": "[concat('oms', uniqueString('ws'))]",
+        "omsAutomationAccountName": "[concat('aa', uniqueString('aa'))]",
+        "omsPolicyGuid": "0868462e-646c-4fe3-9ced-a733534b6a2c",
+        "omsTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/omsWorkspace.json')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Authorization/policyDefinitions",
+            "name": "locationDef01",
+            "apiVersion": "2018-03-01",
+            "properties": {
+                "policyType": "Custom",
+                "mode": "All",
+                "parameters": {},
+                "policyRule": {
+                    "if": {
+                        "field": "location",
+                        "equals": "[parameters('deniedLocation')]"
+                    },
+                    "then": {
+                        "effect": "deny"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/policyAssignments",
+            "name": "byTemplate-location-lock",
+            "apiVersion": "2018-03-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyDefinitions/', 'locationDef01')]"
+            ],
+            "properties": {
+                "scope": "[subscription().id]",
+                "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'locationDef01')]"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[parameters('mgmtRgLocation')]",
+            "name": "[parameters('mgmtRgName')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "workspaceDeployment",
+            "resourceGroup": "[parameters('mgmtRgName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('mgmtRgName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[variables('omsTemplateUri')]"
+                },
+                "parameters": {
+                    "omsWorkspaceName": {
+                        "value": "[variables('omsWorkspaceName')]"
+                    }
+                },
+                "omsWorkspaceRegion": {
+                    "value": "[parameters('mgmtRgLocation')]"
+                },
+                "omsAutomationAccountName": {
+                    "value": "[variables('omsAutomationAccountName')]"
+                },
+                "omsAutomationRegion": {
+                    "value": "[parameters('mgmtRgLocation')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/policyAssignments",
+            "name": "omsDefault",
+            "apiVersion": "2018-03-01",
+            "dependsOn": [
+                "workspaceDeployment"
+            ],
+            "properties": {
+                "scope": "[subscription().id]",
+                "policyDefinitionId": "[concat(providers('Microsoft.Authorization/policyDefinitions', variables('omspolicyGuid')))]",
+                "parameters": {
+                    "logAnalytics": {
+                        "value": "[reference('workspaceDeployment').outputs.omsWorkspaceResourceId.value]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "name": "[parameters('principalId')]",
+            "apiVersion": "2017-05-01",
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+                "principalId": "[parameters('principalId')]",
+                "scope": "[subscription().id]"
+            }
+        }
+    ]
+}
