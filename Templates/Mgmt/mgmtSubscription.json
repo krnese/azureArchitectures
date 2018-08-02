@@ -83,7 +83,21 @@
             "apiVersion": "2018-05-01",
             "location": "[parameters('rgsLocation')]",
             "name": "[parameters('mgmtRgName')]",
-            "properties": {}
+            "properties": {},
+            "resources": [
+                {
+                    "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
+                    "name": "mgmtResourceGroupLock",
+                    "type": "Microsoft.Authorization/locks",
+                    "apiVersion": "2015-01-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Resources/resourceGroups/', parameters('mgmtRgName'))]"
+                    ],
+                    "properties": {
+                        "level": "CannotDelete"
+                    }
+                }
+            ]
         },
         {
             "type": "Microsoft.Resources/deployments",
@@ -159,7 +173,7 @@
             ],
             "properties": {
                 "mode": "Incremental",
-                "template":{
+                "template": {
                     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {},
@@ -188,30 +202,6 @@
                         }
                     ]
                 }
-            }
-        },
-        {
-            "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
-            "type": "Microsoft.Resources/resourceGroups/providers/locks",
-            "apiVersion": "2015-01-01",
-            "name": "[concat(parameters('mgmtRgName'), '/Microsoft.Authorization/mgmtLock')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('mgmtRgName'))]"
-            ],
-            "properties": {
-                "level": "CannotDelete"
-            }
-        },
-        {
-            "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
-            "type": "Microsoft.Resources/resourceGroups/providers/locks",
-            "apiVersion": "2015-01-01",
-            "name": "[concat(parameters('nwRgName'), '/Microsoft.Authorization/nwLock')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('nwRgName'))]"
-            ],
-            "properties": {
-                "level": "CannotDelete"
             }
         }
     ],
