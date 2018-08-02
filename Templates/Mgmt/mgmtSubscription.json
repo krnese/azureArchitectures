@@ -83,21 +83,36 @@
             "apiVersion": "2018-05-01",
             "location": "[parameters('rgsLocation')]",
             "name": "[parameters('mgmtRgName')]",
-            "properties": {},
-            "resources": [
-                {
-                    "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
-                    "name": "mgmtResourceGroupLock",
-                    "type": "Microsoft.Authorization/locks",
-                    "apiVersion": "2015-01-01",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Resources/resourceGroups/', parameters('mgmtRgName'))]"
-                    ],
-                    "properties": {
-                        "level": "CannotDelete"
-                    }
+            "properties": {}
+        },
+        {
+            "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "mgmtLock",
+            "resourceGroup": "[parameters('mgmtRgName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('mgmtRgName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.Authorization/locks",
+                            "apiVersion": "2015-01-01",
+                            "name": "[concat(parameters('mgmtRgName'), '-lock')]",
+                            "properties": {
+                                "level": "CannotDelete"
+                            }
+                        }
+                    ]
                 }
-            ]
+            }
         },
         {
             "type": "Microsoft.Resources/deployments",
@@ -105,7 +120,7 @@
             "name": "workspaceDeployment",
             "resourceGroup": "[parameters('mgmtRgName')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', parameters('mgmtRgName'))]"
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('mgmtRgName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
