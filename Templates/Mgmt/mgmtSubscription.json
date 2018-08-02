@@ -102,7 +102,7 @@
             ],
             "properties": {
                 "scope": "[subscription().id]",
-                "policyDefinitionId": "[concat(providers('Microsoft.Authorization/policyDefinitions', variables('omspolicyGuid')))]",
+                "policyDefinitionId": "[concat('providers/Microsoft.Authorization/policyDefinitions', variables('omspolicyGuid'))]",
                 "parameters": {
                     "logAnalytics": {
                         "value": "[reference('workspaceDeployment').outputs.omsWorkspaceResourceId.value]"
