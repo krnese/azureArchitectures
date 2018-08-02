@@ -11,10 +11,13 @@
         "deniedLocation": {
             "type": "string"
         },
-        "mgmtRgLocation": {
+        "rgsLocation": {
             "type": "string"
         },
         "mgmtRgName": {
+            "type": "string"
+        },
+        "nwRgName": {
             "type": "string"
         }
     },
@@ -22,7 +25,13 @@
         "omsWorkspaceName": "[concat(uniqueString(deployment().name), 'ws20')]",
         "omsAutomationAccountName": "[concat(uniqueString(deployment().name), 'aa20')]",
         "omsPolicyGuid": "0868462e-646c-4fe3-9ced-a733534b6a2c",
-        "omsTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/omsWorkspace.json')]"
+        "omsTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/omsWorkspace.json')]",
+        "vNet": {
+            "vNetName": "hubVnet",
+            "subnetName": "hubSubnet",
+            "vNetAddress": "192.168.0.0/16",
+            "subnetAddress": "192.168.16.0/24"
+        }
     },
     "resources": [
         {
@@ -59,7 +68,7 @@
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2018-05-01",
-            "location": "[parameters('mgmtRgLocation')]",
+            "location": "[parameters('rgsLocation')]",
             "name": "[parameters('mgmtRgName')]",
             "properties": {}
         },
@@ -82,7 +91,7 @@
                         "value": "[variables('omsWorkspaceName')]"
                     },
                     "omsWorkspaceRegion": {
-                        "value": "[parameters('mgmtRgLocation')]"
+                        "value": "[parameters('rgsLocation')]"
                     },
                     "omsAutomationAccountName": {
                         "value": "[variables('omsAutomationAccountName')]"
@@ -118,6 +127,53 @@
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
                 "principalId": "[parameters('principalId')]",
                 "scope": "[subscription().id]"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[parameters('rgsLocation')]",
+            "name": "[parameters('nwRgName')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "nwDeployment",
+            "resourceGroup": "[parameters('nwRgName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('nwRgName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template":{
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "apiVersion": "2017-04-01",
+                            "type": "Microsoft.Network/virtualNetworks",
+                            "name": "[variables('vNet').vNetName]",
+                            "location": "[parameters('rgslocation')]",
+                            "properties": {
+                                "addressSpace": {
+                                    "addressPrefixes": [
+                                        "[variables('vNet').vNetAddress]"
+                                    ]
+                                },
+                                "subnets": [
+                                    {
+                                        "name": "[variables('vNet').subnetName]",
+                                        "properties": {
+                                            "addressPrefix": "[variables('vNet').subnetAddress]"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
             }
         }
     ]
