@@ -30,8 +30,8 @@
         }
     },
     "variables": {
-        "omsWorkspaceName": "[concat(uniqueString(deployment().name), 'ws20')]",
-        "omsAutomationAccountName": "[concat(uniqueString(deployment().name), 'aa20')]",
+        "omsWorkspaceName": "[concat(parameters('mgmtRgName'), deployment().name, 'ws20')]",
+        "omsAutomationAccountName": "[concat(parameters('mgmtRgName'), deployment().name, 'aa20')]",
         "omsPolicyGuid": "0868462e-646c-4fe3-9ced-a733534b6a2c",
         "omsPolicyAssignmentName": "omsDefaultWorkspace",
         "locationPolicyAssignmentName": "deniedLocationAssignment",
