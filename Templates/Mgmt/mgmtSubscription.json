@@ -127,7 +127,7 @@
             "name": "[parameters('principalId')]",
             "apiVersion": "2017-05-01",
             "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions/', parameters('roleDefinitionId'))]",
                 "principalId": "[parameters('principalId')]",
                 "scope": "[subscription().id]"
             }
