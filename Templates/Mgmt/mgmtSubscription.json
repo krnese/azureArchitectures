@@ -53,7 +53,7 @@
                 },
                 "parameters": {
                     "securitySettings": {
-                        "value": "[parameters('principalId')]"
+                        "value": "[parameters('securitySettings')]"
                     },
                     "emailContact": {
                         "value": "[parameters('subscriptionAdminEmail')]"
