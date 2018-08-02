@@ -25,6 +25,9 @@
         "omsWorkspaceName": "[concat(uniqueString(deployment().name), 'ws20')]",
         "omsAutomationAccountName": "[concat(uniqueString(deployment().name), 'aa20')]",
         "omsPolicyGuid": "0868462e-646c-4fe3-9ced-a733534b6a2c",
+        "omsPolicyAssignmentName": "omsDefault",
+        "locationPolicyAssignmentName": "omsDefaultWorkspace",
+        "locationPolicyDefinitionName": "deniedLocation",
         "omsTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/omsWorkspace.json')]",
         "vNet": {
             "vNetName": "hubVnet",
@@ -36,7 +39,7 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/policyDefinitions",
-            "name": "locationDef01",
+            "name": "[variables('locationPolicyDefinitionName')]",
             "apiVersion": "2018-03-01",
             "properties": {
                 "policyType": "Custom",
@@ -55,14 +58,14 @@
         },
         {
             "type": "Microsoft.Authorization/policyAssignments",
-            "name": "byTemplate-location-lock",
+            "name": "[variables('locationPolicyAssignmentName')]",
             "apiVersion": "2018-03-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/policyDefinitions/', 'locationDef01')]"
+                "[resourceId('Microsoft.Authorization/policyDefinitions/', variables('locationPolicyDefinitionName'))]"
             ],
             "properties": {
                 "scope": "[subscription().id]",
-                "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'locationDef01')]"
+                "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', variables('locationPolicyDefinitionName'))]"
             }
         },
         {
@@ -104,7 +107,7 @@
         },
         {
             "type": "Microsoft.Authorization/policyAssignments",
-            "name": "omsDefault",
+            "name": "[variables('omsPolicyAssignmentName')]",
             "apiVersion": "2018-03-01",
             "dependsOn": [
                 "workspaceDeployment"
