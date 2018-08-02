@@ -194,7 +194,7 @@
             "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
             "type": "Microsoft.Resources/resourceGroups/providers/locks",
             "apiVersion": "2015-01-01",
-            "name": "[concat(parameters('mgmtRgName'), '/', 'lock')]",
+            "name": "[concat(parameters('mgmtRgName'), '/Microsoft.Authorization/mgmtLock')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/resourceGroups/', parameters('mgmtRgName'))]"
             ],
@@ -206,7 +206,7 @@
             "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
             "type": "Microsoft.Resources/resourceGroups/providers/locks",
             "apiVersion": "2015-01-01",
-            "name": "[concat(parameters('nwRgName'), '/', 'lock')]",
+            "name": "[concat(parameters('nwRgName'), '/Microsoft.Authorization/nwLock')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/resourceGroups/', parameters('nwRgName'))]"
             ],
