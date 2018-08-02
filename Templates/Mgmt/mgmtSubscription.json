@@ -40,7 +40,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2018-05-01",
-            "name": "ascConfig",
+            "name": "ascSubConfig",
             "location": "[parameters('mgmtRgLocation')]",
             "properties": {
                 "mode": "Incremental",
