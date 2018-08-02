@@ -16,48 +16,15 @@
         },
         "mgmtRgName": {
             "type": "string"
-        },
-        "securitySettings": {
-            "type": "string",
-            "allowedValues": [
-                "On",
-                "Off"
-            ]
-        },
-        "subscriptionAdminEmail": {
-            "type": "string",
-            "defaultValue": "john@doe.com"
         }
     },
     "variables": {
         "omsWorkspaceName": "[concat(uniqueString(deployment().name), 'ws20')]",
         "omsAutomationAccountName": "[concat(uniqueString(deployment().name), 'aa20')]",
         "omsPolicyGuid": "0868462e-646c-4fe3-9ced-a733534b6a2c",
-        "omsTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/omsWorkspace.json')]",
-        "ascTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/ascConfig.json')]"
+        "omsTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/omsWorkspace.json')]"
     },
     "resources": [
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
-            "name": "ascSubConfig",
-            "location": "[parameters('mgmtRgLocation')]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('ascTemplateUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "securitySettings": {
-                        "value": "[parameters('securitySettings')]"
-                    },
-                    "emailContact": {
-                        "value": "[parameters('subscriptionAdminEmail')]"
-                    }
-                }
-            }
-        },
         {
             "type": "Microsoft.Authorization/policyDefinitions",
             "name": "locationDef01",
