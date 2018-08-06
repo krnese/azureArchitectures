@@ -25,7 +25,7 @@
         },
         "vNet1AllowGWTransit": {
             "type": "bool",
-            "defaultValue": "false",
+            "defaultValue": false,
             "metadata": {
                 "description": "Allow gateway transit in the Hub VNet"
             }
@@ -53,7 +53,7 @@
         },
         "vNet2UseRemoteGW": {
             "type": "bool",
-            "defaultValue": "false",
+            "defaultValue": false,
             "metadata": {
                 "description": "Indicates if the spoke VNet can use the remote GW"
             }
