@@ -1,0 +1,231 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "principalId": {
+            "type": "string"
+        },
+        "roleDefinitionId": {
+            "type": "string"
+        },
+        "deniedLocation": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "rgsLocation": {
+            "type": "string"
+        },
+        "nwRgName": {
+            "type": "string"
+        },
+        "enableResourceLocks": {
+            "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
+        },
+        "logAnalyticsId": {
+            "type": "string"
+        },
+        "mgmtSubId": {
+            "type": "string",
+            "defaultValue": "09e8ed26-7d8b-4678-a179-cfca8a0cef5c"
+        },
+        "mgmtVnetName": {
+            "type": "string"
+        },
+        "mgmtNwRgName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "omsPolicyGuid": "0868462e-646c-4fe3-9ced-a733534b6a2c",
+        "omsPolicyAssignmentName": "omsDefaultWorkspace",
+        "locationPolicyAssignmentName": "deniedLocationAssignment",
+        "locationPolicyDefinitionName": "deniedLocation",
+        "vNet": {
+            "vNetName": "userVnet",
+            "subnetName": "userSubnet",
+            "vNetAddress": "192.168.0.0/16",
+            "subnetAddress": "192.168.20.0/24"
+        },
+        "nwPeeringUri": "[uri(deployment().properties.templateLink.uri, '../Network/vNetPeering.json')]"
+    },
+    "resources": [
+        {
+            "condition": "[greater(parameters('deniedLocation'), '0')]",
+            "type": "Microsoft.Authorization/policyDefinitions",
+            "name": "[variables('locationPolicyDefinitionName')]",
+            "apiVersion": "2018-03-01",
+            "properties": {
+                "policyType": "Custom",
+                "mode": "All",
+                "parameters": {},
+                "policyRule": {
+                    "if": {
+                        "field": "location",
+                        "equals": "[parameters('deniedLocation')]"
+                    },
+                    "then": {
+                        "effect": "deny"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[greater(parameters('deniedLocation'), '0')]",
+            "type": "Microsoft.Authorization/policyAssignments",
+            "name": "[variables('locationPolicyAssignmentName')]",
+            "apiVersion": "2018-03-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Authorization/policyDefinitions/', variables('locationPolicyDefinitionName'))]"
+            ],
+            "properties": {
+                "scope": "[subscription().id]",
+                "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', variables('locationPolicyDefinitionName'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/policyAssignments",
+            "name": "[variables('omsPolicyAssignmentName')]",
+            "apiVersion": "2018-03-01",
+            "dependsOn": [
+                "workspaceDeployment"
+            ],
+            "properties": {
+                "scope": "[subscription().id]",
+                "policyDefinitionId": "[concat('providers/Microsoft.Authorization/policyDefinitions/', variables('omspolicyGuid'))]",
+                "parameters": {
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalyticsId')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "name": "[parameters('principalId')]",
+            "apiVersion": "2017-05-01",
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions/', parameters('roleDefinitionId'))]",
+                "principalId": "[parameters('principalId')]",
+                "scope": "[subscription().id]"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[parameters('rgsLocation')]",
+            "name": "[parameters('nwRgName')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "nwDeployment",
+            "resourceGroup": "[parameters('nwRgName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('nwRgName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "apiVersion": "2017-04-01",
+                            "type": "Microsoft.Network/virtualNetworks",
+                            "name": "[variables('vNet').vNetName]",
+                            "location": "[parameters('rgslocation')]",
+                            "properties": {
+                                "addressSpace": {
+                                    "addressPrefixes": [
+                                        "[variables('vNet').vNetAddress]"
+                                    ]
+                                },
+                                "subnets": [
+                                    {
+                                        "name": "[variables('vNet').subnetName]",
+                                        "properties": {
+                                            "addressPrefix": "[variables('vNet').subnetAddress]"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "condition": "[equals(parameters('enableResourceLocks'), 'Yes')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "nwLock",
+            "resourceGroup": "[parameters('nwRgName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('nwRgName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.Authorization/locks",
+                            "apiVersion": "2015-01-01",
+                            "name": "[concat(parameters('nwRgName'), '-lock')]",
+                            "properties": {
+                                "level": "CannotDelete"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "nwPeering",
+            "resourceGroup": "[parameters('nwRgName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('nwRgName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink":{
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[variables('nwPeeringUri')]"
+                },
+                "parameters":{
+                    "vNet1Name": {
+                        "value": "[parameters('mgmtVnetName')]"
+                    },
+                    "vNet1ResourceGroup": {
+                        "value": "[parameters('mgmtNwRgName')]"
+                    },
+                    "vNet1subscriptionId": {
+                        "value": "[parameters('mgmtSubId')]"                    
+                    },
+                    "vNet2Name": {
+                        "value": "[variables('vNet').vNetName]"                        
+                    },
+                    "vNet2ResourceGroup": {
+                        "value": "[parameters('nwRgName')]"                        
+                    },
+                    "vNet2subscriptionId": {
+                        "value": "[subscription().id]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
