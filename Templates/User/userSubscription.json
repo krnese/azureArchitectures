@@ -218,7 +218,7 @@
                         "value": "[parameters('nwRgName')]"                        
                     },
                     "vNet2subscriptionId": {
-                        "value": "[subscription().id]"
+                        "value": "[subscription().subscriptionId]"
                     }
                 }
             }
