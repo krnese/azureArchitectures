@@ -90,9 +90,6 @@
             "type": "Microsoft.Authorization/policyAssignments",
             "name": "[variables('omsPolicyAssignmentName')]",
             "apiVersion": "2018-03-01",
-            "dependsOn": [
-                "workspaceDeployment"
-            ],
             "properties": {
                 "scope": "[subscription().id]",
                 "policyDefinitionId": "[concat('providers/Microsoft.Authorization/policyDefinitions/', variables('omspolicyGuid'))]",
