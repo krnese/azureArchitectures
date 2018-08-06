@@ -47,7 +47,7 @@
         "vNet": {
             "vNetName": "userVnet",
             "subnetName": "userSubnet",
-            "vNetAddress": "192.168.0.0/16",
+            "vNetAddress": "192.168.5.0/16",
             "subnetAddress": "192.168.20.0/24"
         },
         "nwPeeringUri": "[uri(deployment().properties.templateLink.uri, '../Network/vNetPeering.json')]"
