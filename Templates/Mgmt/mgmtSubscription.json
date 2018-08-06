@@ -40,8 +40,8 @@
         "vNet": {
             "vNetName": "hubVnet",
             "subnetName": "hubSubnet",
-            "vNetAddress": "192.168.0.0/16",
-            "subnetAddress": "192.168.16.0/24"
+            "vNetAddress": "10.0.0.0/16",
+            "subnetAddress": "10.0.0.0/24"
         }
     },
     "resources": [
