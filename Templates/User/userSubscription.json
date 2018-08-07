@@ -32,9 +32,6 @@
             "type": "string",
             "defaultValue": "09e8ed26-7d8b-4678-a179-cfca8a0cef5c"
         },
-        "mgmtVnetName": {
-            "type": "string"
-        },
         "mgmtNwRgName": {
             "type": "string"
         }
@@ -45,10 +42,13 @@
         "locationPolicyAssignmentName": "deniedLocationAssignment",
         "locationPolicyDefinitionName": "deniedLocation",
         "vNet": {
-            "vNetName": "userVnet",
-            "subnetName": "userSubnet",
+            "vNetName": "spokeVnet",
+            "subnetName": "spokeSubnet",
             "vNetAddress": "10.1.0.0/16",
             "subnetAddress": "10.1.0.0/24"
+        },
+        "vNetMgmt": {
+            "name": "hubVnet"
         },
         "nwPeeringUri": "[uri(deployment().properties.templateLink.uri, '../Network/vNetPeering.json')]"
     },
@@ -203,7 +203,7 @@
                 },
                 "parameters":{
                     "vNet1Name": {
-                        "value": "[parameters('mgmtVnetName')]"
+                        "value": "[variables('vNetMgmt').name]"
                     },
                     "vNet1ResourceGroup": {
                         "value": "[parameters('mgmtNwRgName')]"
