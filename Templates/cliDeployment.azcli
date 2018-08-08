@@ -1,0 +1,88 @@
+# Replace the variables below to reflect your environment(s)
+# Defining global deployment variables
+ 
+mgmtSubscriptionId="09e8ed26-7d8b-4678-a179-cfca8a0cef5c"
+userSubscriptionId="155c4768-b71c-4e4b-a990-97407f43edda"
+ 
+mgmtSubscriptionTemplateUri="https://raw.githubusercontent.com/krnese/azureArchitectures/master/Templates/Mgmt/mgmtSubscription.json"
+userSubscriptionTemplateUri="https://raw.githubusercontent.com/krnese/azureArchitectures/master/Templates/User/userSubscription.json"
+ 
+# Set subscription context to mgmt subscription
+ 
+az account set -s $mgmtSubscriptionId
+ 
+# Defining variables for mgmt subscription deployment
+ 
+mgmtRgName="sharedMgmt2"
+rgsLocation="eastus"
+nwRgName="hubNetwork2"
+userPrincipalName="krnese@microsoft.com"
+principalId="$(az ad user show --upn-or-object-id $userPrincipalName --query "objectId" -o tsv)"
+roleDefinitionId="$(az role definition list --name "Owner" --query "[].[name]" -o tsv)"
+deniedLocation="northeurope" #optional
+deploymentName="shared"
+deploymentLocation="eastus"
+enableResourceLocks="Yes" #optional
+ 
+# Deploying mgmt subscription template
+ 
+az deployment create --name $deploymentName \
+                     --location $deploymentLocation \
+                     --template-uri $mgmtSubscriptionTemplateUri \
+                     --parameters '{"principalId":{"value": "$principalId"}, "roleDefinitionId":{"value": "$roleDefinitionId"}, "mgmtRgName":{"value": "$mgmtRgName"}, "rgsLocation":{"value": "$rgsLocation"}, "nwRgName":{"value":"$nwRgName"}}' \
+                     --verbose
+ 
+# Fetching resourceId from the previous deployment
+ 
+logAnalyticsId="$(az resource list --resource-group $mgmtRgName --resource-type 'Microsoft.OperationalInsights/workspaces' --query '[].[id]' -o tsv)"
+ 
+# Switching deployment context to user subscription
+
+az account set -s $userSubscriptionId
+ 
+# Defining variables for user subscription deployment
+ 
+userRgsLocation="eastus"
+userNwRgName ="spokeNetwork"
+userPrincipalName="krnese@microsoft.com"
+principalId="$(az ad user show --upn-or-object-id $userPrincipalName --query "objectId" -o tsv)"
+roleDefinitionId="$(az role definition list --name "Owner" --query "[].[name]" -o tsv)"
+userDeniedLocation="northeurope" #optional
+userDeploymentName="user"
+userDeploymentLocation="eastus"
+userEnableResourceLocks="Yes"
+mgmtSubId=$mgmtSubscriptionId
+mgmtNwRgName=$nwRgName
+ 
+# Deploying user subscription template
+
+az deployment create --name $userDeploymentName \
+                     --location $userDeploymentLocation \
+                     --template-uri $userSubscriptionTemplateUri \
+                     --parameters '{"principalId":{"value": "$userPrincipalId"}, "roleDefinitionId":{"value": "$userRoleDefinitionId"}, "logAnalyticsId":{"value": "$logAnalyticsId"}, "rgsLocation":{"value": "$userRgsLocation"}, "nwRgName":{"value":"$userNwRgName"}, "mgmtRgName":{"value": "$mgmtRgName"}}' \
+                     --verbose
+  
+# Defining variables for vm workload deployment
+ 
+vmNamePrefix="uservm10"
+production="Yes"
+platform="Linux"
+workloadTemplateUri="https://raw.githubusercontent.com/krnese/azureArchitectures/master/Templates/Workload/vmCondition.json"
+userName="azureadmin"
+rgDeploymentName="workload"
+location="eastus"
+
+# Create Resource Group
+
+az group create -n $vmNamePrefix -l $location
+ 
+# Deploy worklaod to user subscription
+
+az group deployment create -n $rgDeploymentName \
+                           -l $location \
+                           --template-uri $workloadTemplateUri \
+                           --parameters '{"userName":{"value": "$userName"}, "platform": {"value": "$platform"}, "production":{"value": "$production"}, "vmNamePrefix":{"value":"$vmNamePrefix"}}' \
+                           --verbose
+ 
+# The end                                   
+ 
