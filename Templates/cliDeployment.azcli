@@ -29,9 +29,9 @@ enableResourceLocks="Yes" #optional
 az deployment create --name $deploymentName \
                      --location $deploymentLocation \
                      --template-uri $mgmtSubscriptionTemplateUri \
-                     --parameters '{"principalId":{"value": "$principalId"}, "roleDefinitionId":{"value": "$roleDefinitionId"}, "mgmtRgName":{"value": "$mgmtRgName"}, "rgsLocation":{"value": "$rgsLocation"}, "nwRgName":{"value":"$nwRgName"}}' \
+                     --parameters principalId=$principalId roleDefinitionId=$roleDefinitionId mgmtRgName=$mgmtRgName rgsLocation=$rgsLocation nwRgName=$nwRgName \
                      --verbose
- 
+                   
 # Fetching resourceId from the previous deployment
  
 logAnalyticsId="$(az resource list --resource-group $mgmtRgName --resource-type 'Microsoft.OperationalInsights/workspaces' --query '[].[id]' -o tsv)"
@@ -45,8 +45,8 @@ az account set -s $userSubscriptionId
 userRgsLocation="eastus"
 userNwRgName ="spokeNetwork"
 userPrincipalName="krnese@microsoft.com"
-principalId="$(az ad user show --upn-or-object-id $userPrincipalName --query "objectId" -o tsv)"
-roleDefinitionId="$(az role definition list --name "Owner" --query "[].[name]" -o tsv)"
+userPrincipalId="$(az ad user show --upn-or-object-id $userPrincipalName --query "objectId" -o tsv)"
+userRoleDefinitionId="$(az role definition list --name "Owner" --query "[].[name]" -o tsv)"
 userDeniedLocation="northeurope" #optional
 userDeploymentName="user"
 userDeploymentLocation="eastus"
@@ -59,7 +59,7 @@ mgmtNwRgName=$nwRgName
 az deployment create --name $userDeploymentName \
                      --location $userDeploymentLocation \
                      --template-uri $userSubscriptionTemplateUri \
-                     --parameters '{"principalId":{"value": "$userPrincipalId"}, "roleDefinitionId":{"value": "$userRoleDefinitionId"}, "logAnalyticsId":{"value": "$logAnalyticsId"}, "rgsLocation":{"value": "$userRgsLocation"}, "nwRgName":{"value":"$userNwRgName"}, "mgmtRgName":{"value": "$mgmtRgName"}}' \
+                     --parameters enableResourceLocks=Yes nwRgName=$userNwRgName principalId=$userPrincipalId rgsLocation=$userRgsLocation logAnalyticsId=$logAnalyticsId mgmtSubId=$mgmtSubId mgmtNwRgName=$nwRgName \
                      --verbose
   
 # Defining variables for vm workload deployment
@@ -81,7 +81,7 @@ az group create -n $vmNamePrefix -l $location
 az group deployment create -n $rgDeploymentName \
                            -l $location \
                            --template-uri $workloadTemplateUri \
-                           --parameters '{"userName":{"value": "$userName"}, "platform": {"value": "$platform"}, "production":{"value": "$production"}, "vmNamePrefix":{"value":"$vmNamePrefix"}}' \
+                           --parameters userName=$userName platform=$platform production=$production vmNamePrefix=$vmNamePrefix \
                            --verbose
  
 # The end                                   
