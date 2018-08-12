@@ -13,9 +13,9 @@ az account set -s $mgmtSubscriptionId
  
 # Defining variables for mgmt subscription deployment
  
-mgmtRgName="sharedMgmt2"
+mgmtRgName="nesemgmt"
 rgsLocation="eastus"
-nwRgName="hubNetwork2"
+nwRgName="neseNetwork"
 userPrincipalName="krnese@microsoft.com"
 principalId="$(az ad user show --upn-or-object-id $userPrincipalName --query "objectId" -o tsv)"
 roleDefinitionId="$(az role definition list --name "Owner" --query "[].[name]" -o tsv)"
@@ -53,13 +53,14 @@ userDeploymentLocation="eastus"
 userEnableResourceLocks="Yes"
 mgmtSubId=$mgmtSubscriptionId
 mgmtNwRgName=$nwRgName
+userNwRgName="userNwRg"
  
 # Deploying user subscription template
 
 az deployment create --name $userDeploymentName \
                      --location $userDeploymentLocation \
                      --template-uri $userSubscriptionTemplateUri \
-                     --parameters enableResourceLocks=Yes nwRgName=$userNwRgName principalId=$userPrincipalId rgsLocation=$userRgsLocation logAnalyticsId=$logAnalyticsId mgmtSubId=$mgmtSubId mgmtNwRgName=$nwRgName \
+                     --parameters nwRgName=$userNwRgName roleDefinitionId=$userRoleDefinitionId enableResourceLocks=Yes nwRgName=$userNwRgName principalId=$userPrincipalId rgsLocation=$userRgsLocation logAnalyticsId=$logAnalyticsId mgmtSubId=$mgmtSubId mgmtNwRgName=$nwRgName \
                      --verbose
   
 # Defining variables for vm workload deployment
