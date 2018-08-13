@@ -1,8 +1,8 @@
 # Replace the variables below to reflect your environment(s)
 # Defining global deployment variables
  
-mgmtSubscriptionId="09e8ed26-7d8b-4678-a179-cfca8a0cef5c"
-userSubscriptionId="155c4768-b71c-4e4b-a990-97407f43edda"
+mgmtSubscriptionId=""
+userSubscriptionId=""
  
 mgmtSubscriptionTemplateUri="https://raw.githubusercontent.com/krnese/azureArchitectures/master/Templates/Mgmt/mgmtSubscription.json"
 userSubscriptionTemplateUri="https://raw.githubusercontent.com/krnese/azureArchitectures/master/Templates/User/userSubscription.json"
@@ -16,7 +16,7 @@ az account set -s $mgmtSubscriptionId
 mgmtRgName="nesemgmt"
 rgsLocation="eastus"
 nwRgName="neseNetwork"
-userPrincipalName="krnese@microsoft.com"
+userPrincipalName=""
 principalId="$(az ad user show --upn-or-object-id $userPrincipalName --query "objectId" -o tsv)"
 roleDefinitionId="$(az role definition list --name "Owner" --query "[].[name]" -o tsv)"
 deniedLocation="northeurope" #optional
@@ -53,7 +53,7 @@ userDeploymentLocation="eastus"
 userEnableResourceLocks="Yes"
 mgmtSubId=$mgmtSubscriptionId
 mgmtNwRgName=$nwRgName
-userNwRgName="userNwRg"
+
  
 # Deploying user subscription template
 

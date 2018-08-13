@@ -1,8 +1,8 @@
 ## Replace the variables below to reflect your environment(s)
 # Defining global deployment variables
  
-$mgmtSubscriptionId = "09e8ed26-7d8b-4678-a179-cfca8a0cef5c"
-$userSubscriptionId = "155c4768-b71c-4e4b-a990-97407f43edda"
+$mgmtSubscriptionId = ""
+$userSubscriptionId = ""
  
 $mgmtSubscriptionTemplateUri = "https://raw.githubusercontent.com/krnese/azureArchitectures/master/Templates/Mgmt/mgmtSubscription.json"
 $userSubscriptionTemplateUri = "https://raw.githubusercontent.com/krnese/azureArchitectures/master/Templates/User/userSubscription.json"
@@ -16,7 +16,7 @@ Select-AzureRmSubscription -SubscriptionId $mgmtSubscription
 $mgmtRgName = "sharedMgmt"
 $rgsLocation = "eastus"
 $nwRgName = "hubNetwork"
-$userPrincipalName = "krnese@microsoft.com"
+$userPrincipalName = ""
 $principalId = (Get-AzureRmADUser -UserPrincipalName $userPrinciaplName).id
 $roleDefinitionId = (Get-AzureRmRoleDefinition -Name Owner).id
 $deniedLocation = "northeurope" #optional
