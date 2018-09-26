@@ -61,9 +61,13 @@
                     "marketplaceName": "AntiMalware"
                 },
                 {
-                    "name": "[concat('AzureNSGAnalytics', '(', parameters('workspaceName'), ')')]",
-                    "marketplaceName": "AzureNSGAnalytics"
-                }
+                    "name": "[concat('InfrastructureInsights', '(', parameters('workspaceName'), ')')]",
+                    "marketplaceName": "InfrastructureInsights"
+                },
+                {
+                    "name": "[concat('ServiceMap', '(', parameters('workspaceName'), ')')]",
+                    "marketplaceName": "ServiceMap"
+                }               
             ]
         }
     },
