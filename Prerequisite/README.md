@@ -21,6 +21,7 @@ az graph query --q "summarize count() by tostring(type)"
 Get an overview of the top 10 regions with most resources
 
 ````
+az graph query --q "summarize count() by tostring(location) | top 10 by location asc"
 ````
 
 Get an overview of Linux vs Windows usage
